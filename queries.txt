@@ -1,0 +1,81 @@
+1. Account info
+CREATE TABLE account_info (
+	ID varchar(255) NOT NULL PRIMARY KEY,
+	password varchar(255) NOT NULL
+);
+
+2.User info
+CREATE TABLE user_info (
+	user_id  varchar(255) NOT NULL PRIMARY KEY,
+	FirstName varchar(20) NOT NULL,
+	LastName varchar(20),
+	Email varchar(20) NOT NULL,
+	Gender varchar(10) NOT NULL,
+	Bio varchar(255),
+	private BOOL,
+	FOREIGN KEY (user_id) REFERENCES account_info(ID)
+);
+
+3.Profile pictures
+CREATE TABLE profile_pics (
+	user_id varchar(255) NOT NULL,
+	pics BLOB,
+	FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+);
+5. Post
+CREATE TABLE post(
+	user_id varchar(255) NOT NULL,
+	location varchar(30),
+	post_content BLOB,
+	post_type varchar(10),
+	post_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	post_time datatime,
+	FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+);
+6. likes
+CREATE TABLE likes(
+	post_id INTEGER NOT NULL,
+	user_id varchar(255) NOT NULL,
+	FOREIGN KEY (post_id) REFERENCES post(post_id)
+);
+
+7. Comments
+CREATE TABLE commentsOnPost(
+	post_id INTEGER NOT NULL,
+	user_id varchar(255) NOT NULL,
+	comment TEXT,
+	comment_time datetime,
+	FOREIGN KEY (post_id) REFERENCES post(post_id)
+);
+
+8. Followers
+CREATE TABLE followers(
+	user_id varchar(255) NOT NULL,
+	follower_id varchar(255) NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+);
+
+9. Following
+CREATE TABLE userFollowing(
+	user_id varchar(255) NOT NULL,
+	following_id varchar(255) NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+);
+
+10. conversation
+CREATE TABLE conversation (
+	user1 varchar(255) NOT NULL,
+	user2 varchar(255) NOT NULL,
+	conversation_id varchar(255) NOT NULL PRIMARY KEY,
+	FOREIGN KEY (user1) REFERENCES user_info(user_id),
+	FOREIGN KEY (user2) REFERENCES user_info(user_id)
+);
+
+11. Message
+CREATE TABLE message(
+	conversation_id varchar(255) NOT NULL,
+	user_id varchar(255) NOT NULL,
+	message_time datetime,
+	message_content TEXT,
+	FOREIGN KEY (conversation_id) REFERENCES conversation(conversation_id)
+);
