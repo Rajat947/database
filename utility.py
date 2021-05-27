@@ -1,27 +1,16 @@
-import sqlite3
+import os
+def write_file(data, filename):
+    # Convert binary data to proper format and write it on Hard Disk
+    with open(filename, 'wb') as file:
+        file.write(data)
 #INSERTING BLOB DATA
+def to_raw(string):
+    return fr"{string}"
+
+def clear():
+    os.system('cls')
+
 def convertToBinaryData(filename):
     with open(filename, 'rb') as file:
         blobData = file.read()
     return blobData
-def insertBlobData(user_id, pics):
-    try:
-        sqliteConnection = sqlite3.connect('userInfo')
-        cursor = sqliteConnection.cursor()
-        print("Connected to SQLite")
-        sqlite_insert_blob_query = """ INSERT INTO profile_pics
-                                  (user_id,pics) VALUES (?, ?)"""
-        
-        profile_pic = convertToBinaryData(pics)
-        data_tuple = (user_id, profile_pic)
-        cursor.execute(sqlite_insert_blob_query, data_tuple)
-        sqliteConnection.commit()
-        print("Image inserted successfully as a BLOB into a table")
-        cursor.close()
-    except sqlite3.Error as error:
-        print("Failed to insert blob data into sqlite table", error)
-    finally:
-        if sqliteConnection:
-            sqliteConnection.close()
-            print("the sqlite connection is closed")
-insertBlobData("Prateek",r"C:\Users\Rahul Kakkar\Desktop\Rahul\database\profile_pics\prateek_pic.jpg")
