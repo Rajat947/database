@@ -29,7 +29,7 @@ CREATE TABLE post(
 	post_content BLOB,
 	post_type varchar(10),
 	post_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	post_time datatime,
+	post_time DATETIME DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (user_id) REFERENCES user_info(user_id)
 );
 6. likes
