@@ -9,6 +9,50 @@ import PIL
 import io
 from PIL import ImageTk, Image
 
+def viewPost(user_id):
+    post_id = int(input("Enter Post ID : "))
+    try:
+        conn = sqlite3.connect('userInfo')
+        cursor = conn.cursor()
+    except sqlite3.Error as error:
+        exit()
+    cursor.execute("SELECT post_content FROM post Where user_id = ? AND post_id = ?", (user_id,post_id,))
+    record = cursor.fetchone()
+    post_data = record[0]
+    utility.write_file(post_data, "QueryOutput/" + str(post_id) + ".png")
+    image1 = Image.open("QueryOutput/" + str(post_id) + ".png")
+    root = Tk()
+    image1 = Image.open("QueryOutput/" + str(post_id) + ".png")
+    test = ImageTk.PhotoImage(image1)
+    label1 = tkinter.Label(image=test)
+    label1.image = test
+    label1.place(x=0, y=0)
+    root.title("Post | " + str(post_id))
+    root.geometry("500x500")
+    root.mainloop()
+            
+def viewFeed(user_id):
+    utility.clear()
+    tbl = PrettyTable()
+    tbl.field_names = ["post_id", "post_type" , "Location", "Date and Time"]
+    try:
+        conn = sqlite3.connect('userInfo')
+        cursor = conn.cursor()
+    except sqlite3.Error as error:
+        exit()
+    cursor.execute("SELECT * FROM post Where user_id = ?", (user_id,))
+    records = cursor.fetchall()
+    for row in records:
+        tbl.add_row([row[2],row[4],row[1],row[5]])
+    print(tbl)
+    choice = 'Y'
+    while choice != "N":
+        choice = input("View a particular post ? Y | N : ")
+        if choice == 'Y':
+            viewPost(user_id)
+        else:
+            break
+
 
 
 
@@ -32,11 +76,18 @@ def viewProfile(user_i):
     print(tbl)
     cursor.execute("SELECT pics FROM profile_pics WHERE user_id = ? ",(user_i,))
     record = cursor.fetchone()
-    profile_pic = record[0]
-    utility.write_file(profile_pic, "QueryOutput/" + user_i + ".png")
-    image1 = Image.open("QueryOutput/" + user_i + ".png")
-    root = Tk()
-    image1 = Image.open("QueryOutput/" + user_i + ".png")
+    filename = user_i
+    if record != None:
+        root = Tk()
+        profile_pic = record[0]
+        utility.write_file(profile_pic, "QueryOutput/" + filename + ".png")
+        image1 = Image.open("QueryOutput/" + filename + ".png")
+
+    else:
+        root = Tk()
+        filename = "blank-profile-picture"
+        image1 = Image.open("profile_pics/" + filename + ".png")
+    
     test = ImageTk.PhotoImage(image1)
     label1 = tkinter.Label(image=test)
     label1.image = test
@@ -58,7 +109,7 @@ def updateProfile(user_i):
     print('4. Gender')
     print('5. Bio')
     print('6. Profile Pic')
-    infoToBeUpdated = int(input('Enter info to be updated : '))
+    infoToBeUpdated = int(input('Enter choice : '))
     if infoToBeUpdated == 1:
         info = input("Enter New First Name : ")
         cursor.execute(f'UPDATE user_info SET FirstName = ? WHERE user_id = ?',(info,user_i))
@@ -85,15 +136,21 @@ def updateProfile(user_i):
         conn.commit()
         conn.close()
     elif infoToBeUpdated == 6:
-        print('Pls Make sure that the file to be updated as profile pic is at location specified below !')
-        path = input('Enter full Path : ')
-        raw_path = utility.to_raw(path)
-        print(raw_path)
-        # imageBinData = utility.convertToBinaryData(raw_path)
-        # cursor.execute(f'UPDATE profile_pics SET pics = ? WHERE user_id = ?', (imageBinData,token,))
-        # conn.commit()
-        # print("Image inserted successfully as a BLOB into a table")
-        # conn.close()
+        utility.clear()
+        print("1. Delete Profile Pic")
+        print("2. Update Profile Pic")
+        internal_choice = int(input("Enter Choice : "))
+        if internal_choice == 1:
+            cursor.execute("DELETE FROM profile_pics WHERE user_id = ?", (user_i,))
+            conn.commit()
+            conn.close()
+        elif internal_choice == 2:
+            print('Pls Make sure that the file to be updated as profile pic is at location specified below !')
+            path = input('Enter full Path : ')
+            imageData = utility.convertToBinaryData(path)
+            cursor.execute(f'UPDATE profile_pics SET pics = ? WHERE user_id = ?', (imageData,user_i,))
+            conn.commit()
+            conn.close()
     else:
         print('Wrong Option Choosen !')
         return
@@ -137,27 +194,27 @@ def updateFeed(user_id):
         conn.commit()
         conn.close()
     elif internal_choice == 2:
-        viewFeed(token)
+        viewFeed(user_id)
         post_id = int(input("Enter Post ID : "))
         cursor.execute("DELETE FROM post WHERE user_id = ? AND post_id = ? ", (user_id,post_id,))
         conn.commit()
         conn.close()
     elif internal_choice == 3:
-        viewFeed(token)
+        viewFeed(user_id)
         post_id = int(input('Enter post ID : '))
         print('1. Edit Location')
         print('2. Edit Content and Post Type')
         internal_choice2 = int(input('Enter Choice'))
         if internal_choice2 == 1:
             new_location = input('Enter New Location : ')
-            cursor.execute(f'UPDATE post SET location = ? WHERE user_id = ?',(new_location,token))
+            cursor.execute(f'UPDATE post SET location = ? WHERE user_id = ?',(new_location,user_id))
             conn.commit()
             conn.close()
         if internal_choice2 == 2:
             path2 = input('Complete File Path : ')
             data2 = utility.convertToBinaryData(path2)
             new_post_type = lower(input("Enter New File Type : (Photo/Video"))
-            cursor.execute(f'UPDATE post SET post_content = ? , post_type = ? WHERE user_id = ?',(data2,new_post_type,token))
+            cursor.execute(f'UPDATE post SET post_content = ? , post_type = ? WHERE user_id = ?',(data2,new_post_type,user_id))
             conn.commit()
             conn.close()
 
@@ -192,7 +249,7 @@ def main() :
             if internal_choice == 1:
                 utility.clear()
                 viewProfile(token)
-            elif choice == 2:
+            elif internal_choice == 2:
                 utility.clear()
                 updateProfile(token)
                 viewProfile(token)
