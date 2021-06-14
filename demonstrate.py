@@ -53,9 +53,6 @@ def viewFeed(user_id):
         else:
             break
 
-
-
-
 def viewProfile(user_i):
 
     utility.clear()
@@ -161,7 +158,6 @@ def authorize(user_id, password):
     try:
         conn = sqlite3.connect('userInfo')
         cursor = conn.cursor()
-        
     except sqlite3.Error as error:
         exit()
     # sql_statement =
@@ -220,16 +216,26 @@ def updateFeed(user_id):
 
 def main() :
     
+    print("Welcome!")
+    sleep(1)
+    utility.clear()
+    print("CONNECT RECONNECT ENDLESSLY | CRE")
+    sleep(1.5)
+    utility.clear()
     entered_userid = input("Enter User ID : ")
     entered_pass = input("Enter Password : ")
 
     token = authorize(entered_userid, entered_pass)
-
+    
     if token != None:
-        print('User is Authorized')
+        #user is authorised
+        utility.clear()
+        sleep(0.5)
         print('Welcome back',token+'!')
     else:
-        print('User Not Authorized!')
+        #user is not authorised
+        utility.clear()
+        sleep(0.5)
         print('Bad luck!, Try again Next time')
 
     while token!=None:
@@ -294,7 +300,7 @@ def main() :
                         conn.close()
                     else:
                         print("Password doesn't match with provided password")
-                        sleep(1)
+                        sleep(0.5)
                         print("Try Again!")
                 else:
                     print('Wrong Choice Entered!')
